@@ -1,25 +1,97 @@
-import logo from './logo.svg';
-import './App.css';
+import React, { Component } from 'react'
+import { Drawer } from 'antd';
+import 'antd/dist/antd.css';
+import Chart from './chart';
+import graph from './data.json';
 
-function App() {
-  return (
-    <div className="App">
-      <header className="App-header">
-        <img src={logo} className="App-logo" alt="logo" />
-        <p>
-          Edit <code>src/App.js</code> and save to reload.
-        </p>
-        <a
-          className="App-link"
-          href="https://reactjs.org"
-          target="_blank"
-          rel="noopener noreferrer"
+export default class App extends Component {
+
+  state = {
+    drawerVisible: false,
+    clickedItem: null
+  }
+
+  getOption = () => {
+    const option = {
+      tooltip: {},
+      legend: [{
+        data: graph.categories.map(function (a) {
+          return a.name;
+        })
+      }],
+      series: [
+        {
+          name: 'Les Miserables',
+          type: 'graph',
+          layout: 'none',
+          data: graph.nodes,
+          links: graph.links,
+          categories: graph.categories,
+          roam: true,
+          label: {
+            show: true,
+            position: 'right',
+            formatter: '{b}'
+          },
+          labelLayout: {
+            hideOverlap: true
+          },
+          scaleLimit: {
+            min: 0.4,
+            max: 2
+          },
+          lineStyle: {
+            color: 'source',
+            curveness: 0.3
+          }
+        }
+      ]
+    };
+    return option;
+  }
+
+  closeDrawer = () => {
+    this.setState({
+      drawerVisible: false
+    });
+  }
+
+  handleClick = (e) => {
+    console.log("clicked", e);
+    const { name, seriesId, seriesName, seriesType, value } = e;
+    this.setState({
+      drawerVisible: true,
+      clickedItem: {
+        name,
+        value,
+        seriesId,
+        seriesName,
+        seriesType
+      }
+    });
+  }
+
+  render() {
+
+    const { drawerVisible, clickedItem } = this.state;
+
+    return (
+      <>
+        <Chart
+          getOption={this.getOption}
+          onClick={this.handleClick}
+        />
+        <Drawer
+          title="Basic Drawer"
+          placement="right"
+          closable={true}
+          onClose={this.closeDrawer}
+          visible={drawerVisible}
         >
-          Learn React
-        </a>
-      </header>
-    </div>
-  );
+          {JSON.stringify(clickedItem)}
+        </Drawer>
+      </>
+    )
+  }
 }
 
-export default App;
